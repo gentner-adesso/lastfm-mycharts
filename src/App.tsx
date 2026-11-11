@@ -7,12 +7,13 @@ import { StatsDashboard } from './components/StatsDashboard';
 import { RecentTracksFeed } from './components/RecentTracksFeed';
 import { SettingsModal } from './components/SettingsModal';
 import { ParallaxBackground } from './components/ParallaxBackground';
-import { ParallaxCard } from './components/ParallaxCard';
 import { getUserInfo, getRecentTracks, getStoredUsername } from './services/lastfmApi';
 import { LastFmRecentTrack, LastFmUser } from './types/lastfm';
+import { useLanguage } from './i18n/LanguageContext';
 import { Layers, BarChart3, History } from 'lucide-react';
 
 export const App: React.FC = () => {
+  const { t } = useLanguage();
   const [username, setUsername] = useState<string>(getStoredUsername());
   const [user, setUser] = useState<LastFmUser | null>(null);
   const [recentTracks, setRecentTracks] = useState<LastFmRecentTrack[]>([]);
@@ -45,7 +46,7 @@ export const App: React.FC = () => {
       setNowPlaying(recentData.nowPlaying);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Fehler beim Laden der Last.fm Daten');
+      setError(err.message || 'Error loading Last.fm data');
     } finally {
       setLoading(false);
       setIsRefreshing(false);
@@ -87,63 +88,59 @@ export const App: React.FC = () => {
             <span>{error}</span>
             <button
               onClick={() => loadData()}
-              className="px-3 py-1 bg-lastfm-red text-white text-xs font-bold rounded-lg hover:bg-lastfm-hover"
+              className="px-3 py-1 bg-lastfm-red text-white text-xs font-bold rounded-lg hover:bg-lastfm-hover cursor-pointer"
             >
-              Erneut versuchen
+              {t.general.retry}
             </button>
           </div>
         )}
 
-        {/* User Hero Profile with 3D Parallax Tilt */}
-        <ParallaxCard intensity={10}>
-          <UserProfileHeader user={user} loading={loading} />
-        </ParallaxCard>
+        {/* User Hero Profile */}
+        <UserProfileHeader user={user} loading={loading} />
 
-        {/* Now Playing or Last Played Banner with Parallax Tilt */}
-        <ParallaxCard intensity={8}>
-          <NowPlayingBanner
-            nowPlaying={nowPlaying}
-            lastScrobbled={recentTracks.length > 0 ? recentTracks[0] : null}
-          />
-        </ParallaxCard>
+        {/* Now Playing or Last Played Banner */}
+        <NowPlayingBanner
+          nowPlaying={nowPlaying}
+          lastScrobbled={recentTracks.length > 0 ? recentTracks[0] : null}
+        />
 
         {/* Navigation Tabs */}
         <div className="flex justify-center sm:justify-start">
           <div className="neu-card p-1.5 flex gap-2 w-full sm:w-auto">
             <button
               onClick={() => setActiveTab('collage')}
-              className={`flex-1 sm:flex-initial px-5 py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+              className={`flex-1 sm:flex-initial px-5 py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === 'collage'
-                  ? 'neu-button-active text-lastfm-red border border-lastfm-red/30'
-                  : 'neu-button text-neutral-400 hover:text-white'
+                  ? 'neu-button-active text-lastfm-red border border-lastfm-red/40'
+                  : 'neu-button text-neutral-300 hover:text-white'
               }`}
             >
               <Layers className="w-4 h-4" />
-              <span>Top-Alben Collagen</span>
+              <span>{t.tabs.collage}</span>
             </button>
 
             <button
               onClick={() => setActiveTab('stats')}
-              className={`flex-1 sm:flex-initial px-5 py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+              className={`flex-1 sm:flex-initial px-5 py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === 'stats'
-                  ? 'neu-button-active text-lastfm-red border border-lastfm-red/30'
-                  : 'neu-button text-neutral-400 hover:text-white'
+                  ? 'neu-button-active text-lastfm-red border border-lastfm-red/40'
+                  : 'neu-button text-neutral-300 hover:text-white'
               }`}
             >
               <BarChart3 className="w-4 h-4" />
-              <span>Hörgewohnheiten & Ranglisten</span>
+              <span>{t.tabs.stats}</span>
             </button>
 
             <button
               onClick={() => setActiveTab('history')}
-              className={`flex-1 sm:flex-initial px-5 py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all ${
+              className={`flex-1 sm:flex-initial px-5 py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === 'history'
-                  ? 'neu-button-active text-lastfm-red border border-lastfm-red/30'
-                  : 'neu-button text-neutral-400 hover:text-white'
+                  ? 'neu-button-active text-lastfm-red border border-lastfm-red/40'
+                  : 'neu-button text-neutral-300 hover:text-white'
               }`}
             >
               <History className="w-4 h-4" />
-              <span>Scrobble-Historie</span>
+              <span>{t.tabs.history}</span>
             </button>
           </div>
         </div>
@@ -159,15 +156,15 @@ export const App: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-white/[0.04] py-8 text-center text-xs text-neu-muted">
+      <footer className="border-t border-white/10 py-8 text-center text-xs text-neutral-400 relative z-10">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 font-medium">
-            <span>LastFM MyCharts für</span>
+            <span>{t.footer.madeFor}</span>
             <span className="text-white font-bold">@{username}</span>
-            <span>— Entworfen im Neumorphismus-Stil</span>
+            <span>— {t.footer.craftedWith}</span>
           </div>
           <div className="flex items-center gap-1.5 text-neutral-400">
-            <span>Powered by</span>
+            <span>{t.footer.poweredBy}</span>
             <a
               href="https://www.last.fm"
               target="_blank"

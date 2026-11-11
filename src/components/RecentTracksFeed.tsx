@@ -1,5 +1,6 @@
 import React from 'react';
 import { LastFmRecentTrack } from '../types/lastfm';
+import { useLanguage } from '../i18n/LanguageContext';
 import { History, Disc3, ExternalLink, Radio, Loader2 } from 'lucide-react';
 
 interface RecentTracksFeedProps {
@@ -8,14 +9,17 @@ interface RecentTracksFeedProps {
 }
 
 export const RecentTracksFeed: React.FC<RecentTracksFeedProps> = ({ tracks, loading }) => {
+  const { language, t } = useLanguage();
+
   const formatTime = (uts?: string) => {
     if (!uts) return '';
     const date = new Date(parseInt(uts, 10) * 1000);
-    return date.toLocaleTimeString('de-DE', {
+    const locale = language === 'de' ? 'de-DE' : 'en-US';
+    return date.toLocaleTimeString(locale, {
       hour: '2-digit',
       minute: '2-digit',
-      day: '2-digit',
-      month: '2-digit',
+      month: 'short',
+      day: 'numeric',
     });
   };
 
@@ -23,7 +27,7 @@ export const RecentTracksFeed: React.FC<RecentTracksFeedProps> = ({ tracks, load
     return (
       <div className="neu-card p-12 flex flex-col items-center justify-center gap-3">
         <Loader2 className="w-8 h-8 text-lastfm-red animate-spin" />
-        <span className="text-xs text-neutral-400">Lade Verlauf...</span>
+        <span className="text-xs text-neutral-400">{t.history.loadingHistory}</span>
       </div>
     );
   }
@@ -34,10 +38,12 @@ export const RecentTracksFeed: React.FC<RecentTracksFeedProps> = ({ tracks, load
         <div className="flex items-center gap-2">
           <History className="w-5 h-5 text-lastfm-red" />
           <h3 className="font-extrabold text-white text-xl tracking-tight">
-            Kürzlich gehörte Titel
+            {t.history.title}
           </h3>
         </div>
-        <span className="text-xs text-neutral-400 font-mono">Letzte {tracks.length} Scrobbles</span>
+        <span className="text-xs text-neutral-400 font-mono">
+          {t.history.subtitle.replace('{count}', String(tracks.length))}
+        </span>
       </div>
 
       <div className="space-y-2.5 max-h-[480px] overflow-y-auto pr-2">
@@ -51,7 +57,7 @@ export const RecentTracksFeed: React.FC<RecentTracksFeedProps> = ({ tracks, load
             <div
               key={`${track.name}-${idx}-${track.date?.uts || 'now'}`}
               className={`neu-card-sm p-3 flex items-center justify-between gap-3 text-xs transition-colors ${
-                isNowPlaying ? 'border-lastfm-red/30 bg-lastfm-red/[0.04]' : 'hover:border-white/10'
+                isNowPlaying ? 'border-lastfm-red/40 bg-lastfm-red/[0.06]' : 'hover:border-white/20'
               }`}
             >
               <div className="flex items-center gap-3 min-w-0">
@@ -95,7 +101,7 @@ export const RecentTracksFeed: React.FC<RecentTracksFeedProps> = ({ tracks, load
                 {isNowPlaying ? (
                   <span className="inline-flex items-center gap-1 text-[11px] font-bold text-lastfm-red bg-lastfm-red/10 px-2 py-0.5 rounded-full border border-lastfm-red/30">
                     <Radio className="w-3 h-3 animate-pulse" />
-                    Spielt gerade
+                    {t.history.nowPlaying}
                   </span>
                 ) : (
                   <span className="text-neutral-400 font-mono text-[11px]">

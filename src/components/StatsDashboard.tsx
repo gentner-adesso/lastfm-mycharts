@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { LastFmArtist, LastFmTrack, LastFmUser, TimePeriod } from '../types/lastfm';
 import { getTopArtists, getTopTracks } from '../services/lastfmApi';
+import { useLanguage } from '../i18n/LanguageContext';
 import {
   BarChart3,
   Mic2,
@@ -16,16 +17,17 @@ interface StatsDashboardProps {
   user: LastFmUser | null;
 }
 
-const STATS_PERIODS: { label: string; value: TimePeriod }[] = [
-  { label: '7 Tage', value: '7day' },
-  { label: '1 Monat', value: '1month' },
-  { label: '3 Monate', value: '3month' },
-  { label: '6 Monate', value: '6month' },
-  { label: '12 Monate', value: '12month' },
-  { label: 'Gesamt (All Time)', value: 'overall' },
+const STATS_PERIOD_KEYS: TimePeriod[] = [
+  '7day',
+  '1month',
+  '3month',
+  '6month',
+  '12month',
+  'overall',
 ];
 
 export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
+  const { t } = useLanguage();
   const [period, setPeriod] = useState<TimePeriod>('overall');
   const [topArtists, setTopArtists] = useState<LastFmArtist[]>([]);
   const [topTracks, setTopTracks] = useState<LastFmTrack[]>([]);
@@ -48,7 +50,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
         }
       } catch (err: any) {
         if (!isCancelled) {
-          setError(err.message || 'Fehler beim Laden der Statistiken');
+          setError(err.message || 'Error loading statistics');
         }
       } finally {
         if (!isCancelled) {
@@ -81,29 +83,29 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
               <BarChart3 className="w-5 h-5" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Hörgewohnheiten & <span className="text-lastfm-red">Ranglisten</span>
+              {t.stats.titlePrefix} <span className="text-lastfm-red">{t.stats.titleHighlight}</span>
             </h2>
           </div>
           <p className="text-sm text-neu-muted mt-1">
-            Umfassende Auswertungen deiner meistgehörten Künstler und Tracks.
+            {t.stats.subtitle}
           </p>
         </div>
 
         {/* Time Period Tabs */}
         <div className="neu-card p-1.5 flex flex-wrap gap-1 self-start md:self-auto">
-          {STATS_PERIODS.map((t) => {
-            const active = period === t.value;
+          {STATS_PERIOD_KEYS.map((k) => {
+            const active = period === k;
             return (
               <button
-                key={t.value}
-                onClick={() => setPeriod(t.value)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                key={k}
+                onClick={() => setPeriod(k)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   active
-                    ? 'neu-button-active text-lastfm-red border border-lastfm-red/30'
-                    : 'text-neutral-400 hover:text-white'
+                    ? 'neu-button-active text-lastfm-red border border-lastfm-red/40'
+                    : 'text-neutral-300 hover:text-white'
                 }`}
               >
-                {t.label}
+                {t.collage.periods[k]}
               </button>
             );
           })}
@@ -114,21 +116,21 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="neu-card p-5 relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
-              Top-Künstler Dominanz
+            <span className="text-xs font-bold text-neutral-300 uppercase tracking-wider">
+              {t.stats.topArtistDominance}
             </span>
             <Percent className="w-4 h-4 text-lastfm-red" />
           </div>
           <div className="text-2xl font-black text-white font-mono">{top10Dominance}%</div>
           <p className="text-xs text-neutral-400 mt-1">
-            deiner All-Time Scrobbles stammen allein aus deinen Top 10 Interpreten.
+            {t.stats.topArtistDominanceDesc}
           </p>
         </div>
 
         <div className="neu-card p-5 relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
-              Dauerbrenner #1
+            <span className="text-xs font-bold text-neutral-300 uppercase tracking-wider">
+              {t.stats.allTimeFavorite}
             </span>
             <Flame className="w-4 h-4 text-amber-500" />
           </div>
@@ -136,14 +138,17 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
             {topArtists[0]?.name || '—'}
           </div>
           <p className="text-xs text-neutral-400 mt-1">
-            Mit <strong className="text-lastfm-red font-mono">{Number(topArtists[0]?.playcount || 0).toLocaleString()}</strong> Scrobbles dein unangefochtener Spitzenreiter!
+            {t.stats.allTimeFavoriteDesc.replace(
+              '{count}',
+              Number(topArtists[0]?.playcount || 0).toLocaleString()
+            )}
           </p>
         </div>
 
         <div className="neu-card p-5 relative overflow-hidden">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
-              Häufigster Track
+            <span className="text-xs font-bold text-neutral-300 uppercase tracking-wider">
+              {t.stats.mostPlayedTrack}
             </span>
             <TrendingUp className="w-4 h-4 text-emerald-400" />
           </div>
@@ -151,7 +156,9 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
             {topTracks[0]?.name || '—'}
           </div>
           <p className="text-xs text-neutral-400 mt-1">
-            Von {topTracks[0]?.artist.name} (<span className="text-emerald-400 font-mono font-bold">{topTracks[0]?.playcount}</span> Durchläufe).
+            {t.stats.mostPlayedTrackDesc
+              .replace('{artist}', topTracks[0]?.artist.name || '')
+              .replace('{count}', String(topTracks[0]?.playcount || '0'))}
           </p>
         </div>
       </div>
@@ -159,7 +166,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
       {loading ? (
         <div className="neu-card p-12 flex flex-col items-center justify-center gap-3">
           <Loader2 className="w-8 h-8 text-lastfm-red animate-spin" />
-          <span className="text-xs text-neutral-400">Lade Statistiken...</span>
+          <span className="text-xs text-neutral-400">{t.stats.loadingStats}</span>
         </div>
       ) : error ? (
         <div className="neu-card p-6 text-center text-red-300 text-sm">{error}</div>
@@ -171,7 +178,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
               <div className="flex items-center gap-2">
                 <Mic2 className="w-4 h-4 text-lastfm-red" />
                 <h3 className="font-extrabold text-white text-lg tracking-tight">
-                  Top Künstler
+                  {t.stats.topArtists}
                 </h3>
               </div>
               <span className="text-xs text-neutral-500 font-mono">Top {topArtists.length}</span>
@@ -185,7 +192,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
                 return (
                   <div
                     key={`${artist.name}-${idx}`}
-                    className="neu-card-sm p-3.5 relative overflow-hidden group hover:border-white/10 transition-colors"
+                    className="neu-card-sm p-3.5 relative overflow-hidden group hover:border-white/20 transition-colors"
                   >
                     {/* Background Progress Bar */}
                     <div
@@ -203,7 +210,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
                               ? 'bg-neutral-300/20 text-neutral-200 border border-neutral-300/30'
                               : idx === 2
                               ? 'bg-amber-700/20 text-amber-500 border border-amber-700/30'
-                              : 'text-neutral-500 bg-black/20'
+                              : 'text-neutral-400 bg-black/40'
                           }`}
                         >
                           #{idx + 1}
@@ -227,7 +234,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
                           {plays.toLocaleString()}
                         </span>
                         <span className="text-[10px] text-neutral-400 block font-medium">
-                          Scrobbles
+                          {t.stats.scrobbles}
                         </span>
                       </div>
                     </div>
@@ -243,7 +250,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
               <div className="flex items-center gap-2">
                 <Music className="w-4 h-4 text-lastfm-red" />
                 <h3 className="font-extrabold text-white text-lg tracking-tight">
-                  Top Tracks
+                  {t.stats.topTracks}
                 </h3>
               </div>
               <span className="text-xs text-neutral-500 font-mono">Top {topTracks.length}</span>
@@ -257,7 +264,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
                 return (
                   <div
                     key={`${track.name}-${idx}`}
-                    className="neu-card-sm p-3.5 relative overflow-hidden group hover:border-white/10 transition-colors"
+                    className="neu-card-sm p-3.5 relative overflow-hidden group hover:border-white/20 transition-colors"
                   >
                     {/* Background Progress Bar */}
                     <div
@@ -267,7 +274,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
 
                     <div className="relative z-10 flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold shrink-0 text-neutral-500 bg-black/20">
+                        <span className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold shrink-0 text-neutral-400 bg-black/40">
                           #{idx + 1}
                         </span>
 
@@ -292,7 +299,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({ user }) => {
                           {plays.toLocaleString()}
                         </span>
                         <span className="text-[10px] text-neutral-400 block font-medium">
-                          Scrobbles
+                          {t.stats.scrobbles}
                         </span>
                       </div>
                     </div>

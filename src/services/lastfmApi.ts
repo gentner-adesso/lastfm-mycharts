@@ -12,15 +12,11 @@ const ENV_USER = import.meta.env.VITE_LASTFM_USER || 'Sebastiangentner';
 const BASE_URL = 'https://ws.audioscrobbler.com/2.0/';
 
 export const getStoredApiKey = (): string => {
-  return localStorage.getItem('lastfm_api_key') || ENV_API_KEY;
+  return ENV_API_KEY;
 };
 
 export const getStoredUsername = (): string => {
   return localStorage.getItem('lastfm_username') || ENV_USER;
-};
-
-export const setStoredApiKey = (key: string): void => {
-  localStorage.setItem('lastfm_api_key', key.trim());
 };
 
 export const setStoredUsername = (user: string): void => {
@@ -39,12 +35,12 @@ async function fetchFromLastFm(params: Record<string, string | number>): Promise
 
   const response = await fetch(`${BASE_URL}?${query.toString()}`);
   if (!response.ok) {
-    throw new Error(`Last.fm API Fehler: ${response.status} ${response.statusText}`);
+    throw new Error(`Last.fm API error: ${response.status} ${response.statusText}`);
   }
 
   const data = await response.json();
   if (data.error) {
-    throw new Error(data.message || `Last.fm Fehler Code ${data.error}`);
+    throw new Error(data.message || `Last.fm Error Code ${data.error}`);
   }
 
   return data;

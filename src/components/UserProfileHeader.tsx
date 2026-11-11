@@ -1,5 +1,6 @@
 import React from 'react';
 import { LastFmUser } from '../types/lastfm';
+import { useLanguage } from '../i18n/LanguageContext';
 import {
   Calendar,
   Flame,
@@ -17,6 +18,8 @@ interface UserProfileHeaderProps {
 }
 
 export const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, loading }) => {
+  const { language, t } = useLanguage();
+
   if (loading && !user) {
     return (
       <div className="neu-card p-8 animate-pulse flex flex-col md:flex-row gap-6 items-center">
@@ -49,7 +52,7 @@ export const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, load
   const totalHours = Math.round((playcountNum * 3.75) / 60);
   const totalDaysNonStop = Math.round(totalHours / 24);
 
-  // Milestone Progress: towards 180,000 or next 10,000
+  // Milestone Progress: towards next 10,000
   const nextMilestone = Math.ceil((playcountNum + 1) / 10000) * 10000;
   const prevMilestone = nextMilestone - 10000;
   const milestoneProgress = Math.min(
@@ -64,7 +67,8 @@ export const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, load
     user.image?.[user.image.length - 1]?.['#text'] ||
     '';
 
-  const formattedRegDate = regDate.toLocaleDateString('de-DE', {
+  const locale = language === 'de' ? 'de-DE' : 'en-US';
+  const formattedRegDate = regDate.toLocaleDateString(locale, {
     month: 'long',
     year: 'numeric',
   });
@@ -104,17 +108,19 @@ export const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, load
           <div className="mt-2 flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs text-neu-muted font-medium">
             <span className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4 text-lastfm-red" />
-              Dabei seit <strong className="text-white font-semibold">{formattedRegDate}</strong> ({yearsActive} Jahre)
+              {t.userHeader.memberSince}{' '}
+              <strong className="text-white font-semibold">{formattedRegDate}</strong> ({yearsActive} {t.userHeader.years})
             </span>
             <span className="hidden sm:inline text-white/20">•</span>
             <span className="flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-amber-400" />
-              Schnitt: <strong className="text-white font-semibold">{scrobblesPerDay}</strong> Scrobbles / Tag
+              {t.userHeader.dailyAvg}:{' '}
+              <strong className="text-white font-semibold">{scrobblesPerDay}</strong> {t.userHeader.scrobblesPerDay}
             </span>
             <span className="hidden sm:inline text-white/20">•</span>
             <span className="flex items-center gap-1.5">
               <Clock className="w-4 h-4 text-red-400" />
-              ~<strong className="text-white font-semibold">{totalDaysNonStop.toLocaleString()}</strong> Tage reine Spielzeit ({totalHours.toLocaleString()} Std.)
+              ~<strong className="text-white font-semibold">{totalDaysNonStop.toLocaleString()}</strong> {t.userHeader.days} ({totalHours.toLocaleString()} {t.userHeader.hours})
             </span>
           </div>
 
@@ -123,16 +129,16 @@ export const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, load
             <div className="flex justify-between items-center text-xs font-semibold mb-2">
               <span className="flex items-center gap-1.5 text-neutral-300">
                 <Award className="w-4 h-4 text-lastfm-red" />
-                Nächster Meilenstein:{' '}
-                <span className="text-white font-bold">{nextMilestone.toLocaleString()} Scrobbles</span>
+                {t.userHeader.nextMilestone}:{' '}
+                <span className="text-white font-bold">{nextMilestone.toLocaleString()} {t.userHeader.scrobbles}</span>
               </span>
               <span className="text-lastfm-red font-mono font-bold">
-                Noch {scrobblesUntilMilestone.toLocaleString()} übrig ({milestoneProgress.toFixed(1)}%)
+                {scrobblesUntilMilestone.toLocaleString()} {t.userHeader.leftUntil} ({milestoneProgress.toFixed(1)}%)
               </span>
             </div>
             <div className="w-full bg-black/40 h-3 rounded-full overflow-hidden p-0.5">
               <div
-                className="h-full bg-gradient-to-r from-neutral-600 via-lastfm-red to-[#ff2b1d] rounded-full transition-all duration-1000 shadow-[0_0_12px_rgba(213,16,7,0.7)]"
+                className="h-full bg-gradient-to-r from-neutral-600 via-lastfm-red to-[#ff2b1d] rounded-full transition-all duration-1000 shadow-[0_0_12px_rgba(255,23,33,0.7)]"
                 style={{ width: `${milestoneProgress}%` }}
               />
             </div>
@@ -141,9 +147,9 @@ export const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, load
           {/* Quick Stats Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mt-5">
             <div className="neu-card-sm p-3.5 text-center">
-              <div className="flex items-center justify-center gap-1.5 text-neutral-400 text-xs font-medium mb-1">
+              <div className="flex items-center justify-center gap-1.5 text-neutral-300 text-xs font-medium mb-1">
                 <Flame className="w-3.5 h-3.5 text-lastfm-red" />
-                Scrobbles
+                {t.userHeader.scrobbles}
               </div>
               <div className="text-xl sm:text-2xl font-black text-white font-mono tracking-tight">
                 {playcountNum.toLocaleString()}
@@ -151,9 +157,9 @@ export const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, load
             </div>
 
             <div className="neu-card-sm p-3.5 text-center">
-              <div className="flex items-center justify-center gap-1.5 text-neutral-400 text-xs font-medium mb-1">
+              <div className="flex items-center justify-center gap-1.5 text-neutral-300 text-xs font-medium mb-1">
                 <Mic2 className="w-3.5 h-3.5 text-blue-400" />
-                Künstler
+                {t.userHeader.artists}
               </div>
               <div className="text-xl sm:text-2xl font-black text-white font-mono tracking-tight">
                 {parseInt(user.artist_count || '0', 10).toLocaleString()}
@@ -161,9 +167,9 @@ export const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, load
             </div>
 
             <div className="neu-card-sm p-3.5 text-center">
-              <div className="flex items-center justify-center gap-1.5 text-neutral-400 text-xs font-medium mb-1">
+              <div className="flex items-center justify-center gap-1.5 text-neutral-300 text-xs font-medium mb-1">
                 <Disc className="w-3.5 h-3.5 text-emerald-400" />
-                Alben
+                {t.userHeader.albums}
               </div>
               <div className="text-xl sm:text-2xl font-black text-white font-mono tracking-tight">
                 {parseInt(user.album_count || '0', 10).toLocaleString()}
@@ -171,9 +177,9 @@ export const UserProfileHeader: React.FC<UserProfileHeaderProps> = ({ user, load
             </div>
 
             <div className="neu-card-sm p-3.5 text-center">
-              <div className="flex items-center justify-center gap-1.5 text-neutral-400 text-xs font-medium mb-1">
+              <div className="flex items-center justify-center gap-1.5 text-neutral-300 text-xs font-medium mb-1">
                 <Music2 className="w-3.5 h-3.5 text-purple-400" />
-                Tracks
+                {t.userHeader.tracks}
               </div>
               <div className="text-xl sm:text-2xl font-black text-white font-mono tracking-tight">
                 {parseInt(user.track_count || '0', 10).toLocaleString()}

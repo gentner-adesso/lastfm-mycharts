@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { LastFmAlbum, TimePeriod } from '../types/lastfm';
 import { getTopAlbums } from '../services/lastfmApi';
 import { renderCollageToCanvas } from '../utils/collageGenerator';
+import { useLanguage } from '../i18n/LanguageContext';
 import {
   Download,
   Grid,
@@ -21,24 +22,25 @@ interface GridOption {
 }
 
 const GRID_OPTIONS: GridOption[] = [
-  { label: '3 × 3 (9 Alben)', cols: 3, rows: 3 },
-  { label: '4 × 4 (16 Alben)', cols: 4, rows: 4 },
-  { label: '5 × 5 (25 Alben)', cols: 5, rows: 5 },
-  { label: '2 × 2 (4 Alben)', cols: 2, rows: 2 },
-  { label: '3 × 4 (12 Alben)', cols: 3, rows: 4 },
-  { label: '4 × 5 (20 Alben)', cols: 4, rows: 5 },
+  { label: '3 × 3', cols: 3, rows: 3 },
+  { label: '4 × 4', cols: 4, rows: 4 },
+  { label: '5 × 5', cols: 5, rows: 5 },
+  { label: '2 × 2', cols: 2, rows: 2 },
+  { label: '3 × 4', cols: 3, rows: 4 },
+  { label: '4 × 5', cols: 4, rows: 5 },
 ];
 
-const TIME_RANGES: { label: string; value: TimePeriod }[] = [
-  { label: '7 Tage', value: '7day' },
-  { label: '1 Monat', value: '1month' },
-  { label: '3 Monate', value: '3month' },
-  { label: '6 Monate', value: '6month' },
-  { label: '12 Monate', value: '12month' },
-  { label: 'Gesamt (All Time)', value: 'overall' },
+const PERIOD_KEYS: TimePeriod[] = [
+  '7day',
+  '1month',
+  '3month',
+  '6month',
+  '12month',
+  'overall',
 ];
 
 export const CollageSection: React.FC = () => {
+  const { t } = useLanguage();
   const [period, setPeriod] = useState<TimePeriod>('1month');
   const [grid, setGrid] = useState<GridOption>(GRID_OPTIONS[0]); // 3x3 default
   const [gap, setGap] = useState<number>(8);
@@ -67,7 +69,7 @@ export const CollageSection: React.FC = () => {
         }
       } catch (err: any) {
         if (!isCancelled) {
-          setError(err.message || 'Fehler beim Laden der Top-Alben');
+          setError(err.message || 'Error loading top albums');
         }
       } finally {
         if (!isCancelled) {
@@ -145,11 +147,11 @@ export const CollageSection: React.FC = () => {
               <Layers className="w-5 h-5" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Top-Alben <span className="text-lastfm-red">Collagen Generator</span>
+              {t.collage.titlePrefix} <span className="text-lastfm-red">{t.collage.titleHighlight}</span>
             </h2>
           </div>
           <p className="text-sm text-neu-muted mt-1">
-            Erstelle, personalisiere und lade hochauflösende Album-Cover-Grids deiner Hörgewohnheiten herunter.
+            {t.collage.subtitle}
           </p>
         </div>
 
@@ -163,7 +165,7 @@ export const CollageSection: React.FC = () => {
           ) : (
             <Download className="w-4 h-4" />
           )}
-          <span>High-Res PNG herunterladen</span>
+          <span>{t.collage.downloadBtn}</span>
         </button>
       </div>
 
@@ -171,24 +173,24 @@ export const CollageSection: React.FC = () => {
       <div className="neu-card p-6 space-y-6">
         {/* Row 1: Time Ranges */}
         <div>
-          <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
+          <label className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5 mb-3">
             <Calendar className="w-3.5 h-3.5 text-lastfm-red" />
-            Zeitraum auswählen
+            {t.collage.timePeriod}
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-            {TIME_RANGES.map((t) => {
-              const active = period === t.value;
+            {PERIOD_KEYS.map((k) => {
+              const active = period === k;
               return (
                 <button
-                  key={t.value}
-                  onClick={() => setPeriod(t.value)}
-                  className={`px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-center ${
+                  key={k}
+                  onClick={() => setPeriod(k)}
+                  className={`px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-center cursor-pointer ${
                     active
-                      ? 'neu-button-active text-lastfm-red border border-lastfm-red/30'
+                      ? 'neu-button-active text-lastfm-red border border-lastfm-red/40'
                       : 'neu-button text-neutral-300 hover:text-white'
                   }`}
                 >
-                  {t.label}
+                  {t.collage.periods[k]}
                 </button>
               );
             })}
@@ -199,24 +201,28 @@ export const CollageSection: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-3 border-t border-white/10">
           {/* Grid Size */}
           <div>
-            <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
+            <label className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5 mb-3">
               <Grid className="w-3.5 h-3.5 text-lastfm-red" />
-              Raster / Format
+              {t.collage.gridFormat}
             </label>
             <div className="grid grid-cols-3 gap-2">
               {GRID_OPTIONS.map((g) => {
                 const active = grid.cols === g.cols && grid.rows === g.rows;
+                const count = g.cols * g.rows;
                 return (
                   <button
                     key={g.label}
                     onClick={() => setGrid(g)}
-                    className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-center ${
+                    className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-center cursor-pointer ${
                       active
-                        ? 'neu-button-active text-lastfm-red border border-lastfm-red/30'
+                        ? 'neu-button-active text-lastfm-red border border-lastfm-red/40'
                         : 'neu-button text-neutral-300 hover:text-white'
                     }`}
                   >
-                    {g.label}
+                    <span>{g.label}</span>
+                    <span className="text-[10px] text-neutral-400 block font-normal">
+                      ({count} {t.userHeader.albums})
+                    </span>
                   </button>
                 );
               })}
@@ -225,24 +231,24 @@ export const CollageSection: React.FC = () => {
 
           {/* Grid Spacing / Gap */}
           <div>
-            <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
+            <label className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5 mb-3">
               <Layers className="w-3.5 h-3.5 text-lastfm-red" />
-              Kachelabstand (Gap)
+              {t.collage.tileGap}
             </label>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { label: 'Nahtlos (0px)', val: 0 },
-                { label: 'Schmal (8px)', val: 8 },
-                { label: 'Breit (16px)', val: 16 },
+                { label: t.collage.seamless, val: 0 },
+                { label: t.collage.compact, val: 8 },
+                { label: t.collage.wide, val: 16 },
               ].map((spacing) => {
                 const active = gap === spacing.val;
                 return (
                   <button
                     key={spacing.val}
                     onClick={() => setGap(spacing.val)}
-                    className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-center ${
+                    className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all text-center cursor-pointer ${
                       active
-                        ? 'neu-button-active text-lastfm-red border border-lastfm-red/30'
+                        ? 'neu-button-active text-lastfm-red border border-lastfm-red/40'
                         : 'neu-button text-neutral-300 hover:text-white'
                     }`}
                   >
@@ -256,14 +262,14 @@ export const CollageSection: React.FC = () => {
 
         {/* Row 3: Overlays & Detail Toggles */}
         <div className="pt-3 border-t border-white/10">
-          <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-1.5 mb-3">
+          <label className="text-xs font-bold text-neutral-300 uppercase tracking-wider flex items-center gap-1.5 mb-3">
             <Eye className="w-3.5 h-3.5 text-lastfm-red" />
-            Cover-Overlays & Details
+            {t.collage.overlays}
           </label>
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={() => setShowTitles(!showTitles)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                 showTitles
                   ? 'neu-button-active text-white border border-white/20'
                   : 'neu-button text-neutral-400'
@@ -276,12 +282,12 @@ export const CollageSection: React.FC = () => {
               >
                 {showTitles && <Check className="w-3 h-3 stroke-[3]" />}
               </div>
-              <span>Titel & Interpret einblenden</span>
+              <span>{t.collage.toggleTitles}</span>
             </button>
 
             <button
               onClick={() => setShowPlaycounts(!showPlaycounts)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                 showPlaycounts
                   ? 'neu-button-active text-white border border-white/20'
                   : 'neu-button text-neutral-400'
@@ -295,12 +301,12 @@ export const CollageSection: React.FC = () => {
                 {showPlaycounts && <Check className="w-3 h-3 stroke-[3]" />}
               </div>
               <Activity className="w-3.5 h-3.5 text-lastfm-red" />
-              <span>Scrobble-Anzahl anzeigen</span>
+              <span>{t.collage.togglePlays}</span>
             </button>
 
             <button
               onClick={() => setShowRanks(!showRanks)}
-              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                 showRanks
                   ? 'neu-button-active text-white border border-white/20'
                   : 'neu-button text-neutral-400'
@@ -314,7 +320,7 @@ export const CollageSection: React.FC = () => {
                 {showRanks && <Check className="w-3 h-3 stroke-[3]" />}
               </div>
               <Hash className="w-3.5 h-3.5 text-lastfm-red" />
-              <span>Platzierungen (#1, #2...)</span>
+              <span>{t.collage.toggleRanks}</span>
             </button>
           </div>
         </div>
@@ -324,10 +330,10 @@ export const CollageSection: React.FC = () => {
       <div className="neu-card p-4 sm:p-8 relative">
         {/* Loading overlay */}
         {(loading || rendering) && (
-          <div className="absolute inset-0 bg-neu-bg/70 backdrop-blur-sm z-20 rounded-2xl flex flex-col items-center justify-center gap-3">
+          <div className="absolute inset-0 bg-neu-bg/75 backdrop-blur-sm z-20 rounded-2xl flex flex-col items-center justify-center gap-3">
             <Loader2 className="w-10 h-10 text-lastfm-red animate-spin" />
             <span className="text-sm font-semibold text-white">
-              {loading ? 'Lade Top-Alben...' : 'Rendere hochauflösende Collage...'}
+              {loading ? t.collage.loading : t.collage.rendering}
             </span>
           </div>
         )}
@@ -349,7 +355,7 @@ export const CollageSection: React.FC = () => {
         <div className="mt-8 pt-6 border-t border-white/10">
           <h4 className="text-xs font-black text-white uppercase tracking-wider mb-4 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-lastfm-red"></span>
-            In dieser Collage enthalten ({currentAlbums.length} Alben)
+            {t.collage.includedAlbums} ({currentAlbums.length})
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {currentAlbums.map((album, idx) => {
@@ -362,7 +368,7 @@ export const CollageSection: React.FC = () => {
                   className="neu-card-sm p-3 flex items-center justify-between gap-3 text-xs"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="w-5 text-neutral-500 font-mono font-bold shrink-0 text-center">
+                    <span className="w-5 text-neutral-400 font-mono font-bold shrink-0 text-center">
                       #{idx + 1}
                     </span>
                     {cover ? (
@@ -385,7 +391,7 @@ export const CollageSection: React.FC = () => {
                     <span className="font-mono font-bold text-lastfm-red">
                       {album.playcount}
                     </span>
-                    <span className="text-[10px] text-neutral-500 block">Scrobbles</span>
+                    <span className="text-[10px] text-neutral-400 block">{t.collage.scrobbles}</span>
                   </div>
                 </div>
               );

@@ -2,73 +2,81 @@
 
 > 🌐 **Live Website:** **[https://gentner-adesso.github.io/lastfm-mycharts/](https://gentner-adesso.github.io/lastfm-mycharts/)**
 
-Eine moderne Web-App für detaillierte Musikstatistiken und Album-Cover-Collagen für den Last.fm-Nutzer **[Sebastiangentner](https://www.last.fm/user/Sebastiangentner)**.  
-Entwickelt im schicken **Neumorphismus-Stil** in den Farben Schwarz, Grau, Weiß und Last.fm-Crimson-Rot! 🖤⚪🔴
+A modern web application delivering in-depth music statistics and high-resolution album cover collages for the Last.fm profile of **[Sebastiangentner](https://www.last.fm/user/Sebastiangentner)**.  
+Built with a sleek **dark Neumorphic UI** featuring pitch black, deep gray, crisp white, and Last.fm-crimson red! 🖤⚪🔴
 
 ---
 
-## 🚀 Schnellstart — Befehl zum Starten (Lokal)
+## 🚀 Quick Start — Start the App Locally
 
-Öffne ein Terminal in diesem Projektordner und führe folgenden Befehl aus:
+Open your terminal in this repository and run:
 
 ```bash
 npm run dev
 ```
 
-Falls die Abhängigkeiten noch nicht installiert sind, führe vorher einmalig aus:
+If you haven't installed dependencies yet, run once:
 
 ```bash
 npm install
 ```
 
-Sobald der Server läuft, öffne die Seite im Browser:
+Once the development server is running, open the app in your browser:
 
 👉 **[http://localhost:5173/](http://localhost:5173/)** 🌐
 
 ---
 
-## 📜 Alle verfügbaren Befehle
+## 📜 Available Commands
 
-| Befehl | Beschreibung |
+| Command | Description |
 |---|---|
-| `npm run dev` ⚡ | Startet den lokalen Entwicklungs-Server mit Hot-Reloading |
-| `npm run build` 📦 | Erstellt den optimierten Production-Build |
-| `npm run preview` 👀 | Vorschau des erstellten Production-Builds |
+| `npm run dev` ⚡ | Starts the local development server with instant Hot Module Replacement (HMR) |
+| `npm run build` 📦 | Compiles TypeScript and creates an optimized production build in `dist/` |
+| `npm run preview` 👀 | Locally previews the production build |
 
 ---
 
-## 🔑 Konfiguration & API Token
+## 🔑 Configuration & API Token
 
-Das Last.fm API Token wird sicher über Umgebungsvariablen (`.env.local` lokal bzw. GitHub Secrets online) verwaltet und ist **nicht** im Klartext im Code hinterlegt:
+The Last.fm API Token is kept safe via environment variables (locally in `.env.local` and in production via GitHub Actions Secrets). It is **never** committed in plain text to the repository:
 
-- Kopiere `.env.example` zu `.env.local`:
-  ```bash
-  cp .env.example .env.local
-  ```
-- Trage dein API Token und deinen Benutzernamen in `.env.local` ein:
-  ```env
-  VITE_LASTFM_API_KEY=dein_api_key
-  VITE_LASTFM_USER=Sebastiangentner
-  ```
+1. Copy the example file:
+   ```bash
+   cp .env.example .env.local
+   ```
+2. Set your credentials in `.env.local`:
+   ```env
+   VITE_LASTFM_API_KEY=your_api_key_here
+   VITE_LASTFM_SHARED_SECRET=your_shared_secret_here
+   VITE_LASTFM_USER=Sebastiangentner
+   ```
 
 ---
 
 ## ✨ Features
 
-- 🖼️ **Top-Alben Collagen-Generator**:
-  - Zeiträume: 7 Tage, 1 Monat, 3 Monate, 6 Monate, 12 Monate, Gesamt (All Time) ⏳
-  - Raster: 3×3, 4×4, 5×5, 2×2, 3×4, 4×5 📐
-  - Optionen für Albumtitel, Scrobble-Counts, Platzierungsnummern und Abstände 🎛️
-  - **High-Res PNG-Download** auf Knopfdruck 💾
-- 📊 **Detaillierte Statistiken**:
-  - Profil-Veteranen-Status (seit Dezember 2003, über 22 Jahre Mitglied!) 🏆
-  - Durchschnittliche Scrobbles pro Tag & Meilenstein-Fortschrittsbalken 🎯
-  - Ranglisten der Top-Künstler & Top-Tracks mit interaktiven Balken 📈
-- 🔴 **Now Playing & Live-Status**:
-  - Echtzeit-Anzeige des aktuell laufenden Songs inklusive animiertem Equalizer 🎧
-- 🖤 **Design**:
-  - Plastischer Neumorphismus mit taktilen Buttons, tiefem Schwarz und intensivem Rot 🖲️
+- 🌐 **Bilingual Support (English Default & German)**:
+  - Instant one-click language switcher (`EN` / `DE`) in the navigation bar.
+- 🖼️ **Top Albums Collage Generator**:
+  - **Custom Time Periods**: 7 Days, 1 Month, 3 Months, 6 Months, 12 Months, Overall (All-Time) ⏳
+  - **Grid Formats**: 3×3 (9 albums), 4×4 (16 albums), 5×5 (25 albums), 2×2, 3×4, 4×5 📐
+  - **Tile Spacing**: Seamless (0px), Compact (8px), Wide (16px) 🎛️
+  - **Custom Overlays**: Toggle album & artist titles, scrobble play counts, and rank badges (`#1`, `#2`...) 🏷️
+  - **High-Res PNG Export**: One-click instant high-resolution download rendered on an HTML5 canvas 💾
+- 📊 **In-Depth Listening Habits & Charts**:
+  - **Veteran Profile**: Scrobbling since December 2003 (over 22 years of music history!) 🏆
+  - **Milestone Tracker**: Visual progress gauge towards the next 10,000 scrobble milestone 🎯
+  - **Velocity Stats**: Average scrobbles per day, total non-stop listening time in hours and days (~467+ days) ⏱️
+  - **Rankings**: Interactive leaderboards for Top Artists and Top Tracks with glowing crimson proportion bars 📈
+  - **Dominance Metric**: Percentage of all-time listening concentrated in your Top 10 artists 🎸
+- 🔴 **Now Playing & Live Stream**:
+  - Real-time indicator with animated equalizer bars when listening, or relative timestamp since last track 🎧
+  - Chronological recent scrobbles feed with album covers and direct Last.fm links 📻
+- 🌌 **Visual Aesthetics**:
+  - Multi-layer GPU-accelerated **parallax background** with drifting vinyl grooves and crimson nebula glows 🪐
+  - Tactile Neumorphism with high-contrast shadows, sunken insets, and embossed crimson buttons 🖲️
 
 ---
 
-Viel Spaß beim Entdecken deiner Charts! 🎸🔥
+Enjoy exploring your charts! 🎸🔥
