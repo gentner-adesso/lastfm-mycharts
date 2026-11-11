@@ -30,9 +30,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="text-xl font-black tracking-tight text-white">
                 LastFM <span className="text-lastfm-red">MyCharts</span>
               </span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 border border-white/20 text-neutral-200 uppercase tracking-wider">
-                {t.navbar.proStats}
-              </span>
             </div>
             <p className="text-xs text-neutral-300 flex items-center gap-1.5 font-medium">
               {t.navbar.profile}:
@@ -51,14 +48,18 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center gap-2.5 sm:gap-3">
-          {/* Language Switcher Pill Button */}
+          {/* Language Switcher Button with Flag Emojis */}
           <button
             onClick={toggleLanguage}
-            className="neu-button px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 text-white hover:text-lastfm-red transition-all cursor-pointer border border-white/15"
-            title={language === 'en' ? 'Auf Deutsch umschalten' : 'Switch to English'}
+            className="neu-button px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 text-white hover:text-lastfm-red transition-all cursor-pointer border border-white/15"
+            title={language === 'en' ? 'Auf Deutsch umschalten (🇩🇪 DE)' : 'Switch to English (🇬🇧 EN)'}
           >
-            <Globe className="w-3.5 h-3.5 text-lastfm-red" />
-            <span className="font-mono">{language === 'en' ? 'EN' : 'DE'}</span>
+            <span className="text-sm leading-none" role="img" aria-label="flag">
+              {language === 'en' ? '🇬🇧' : '🇩🇪'}
+            </span>
+            <span className="font-mono font-bold tracking-wide">
+              {language === 'en' ? 'EN' : 'DE'}
+            </span>
           </button>
 
           <button
