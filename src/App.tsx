@@ -6,6 +6,8 @@ import { CollageSection } from './components/CollageSection';
 import { StatsDashboard } from './components/StatsDashboard';
 import { RecentTracksFeed } from './components/RecentTracksFeed';
 import { SettingsModal } from './components/SettingsModal';
+import { ParallaxBackground } from './components/ParallaxBackground';
+import { ParallaxCard } from './components/ParallaxCard';
 import { getUserInfo, getRecentTracks, getStoredUsername } from './services/lastfmApi';
 import { LastFmRecentTrack, LastFmUser } from './types/lastfm';
 import { Layers, BarChart3, History } from 'lucide-react';
@@ -66,7 +68,10 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-neu-bg text-neu-text flex flex-col font-sans selection:bg-lastfm-red selection:text-white">
+    <div className="min-h-screen bg-neu-bg text-neu-text flex flex-col font-sans selection:bg-lastfm-red selection:text-white relative overflow-x-hidden">
+      {/* Dynamic Parallax Background Layers */}
+      <ParallaxBackground />
+
       {/* Navbar */}
       <Navbar
         username={username}
@@ -76,7 +81,7 @@ export const App: React.FC = () => {
       />
 
       {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8 relative z-10">
         {error && (
           <div className="neu-card p-4 bg-red-950/40 border border-lastfm-red/40 text-red-200 text-sm flex items-center justify-between">
             <span>{error}</span>
@@ -89,14 +94,18 @@ export const App: React.FC = () => {
           </div>
         )}
 
-        {/* User Hero Profile */}
-        <UserProfileHeader user={user} loading={loading} />
+        {/* User Hero Profile with 3D Parallax Tilt */}
+        <ParallaxCard intensity={10}>
+          <UserProfileHeader user={user} loading={loading} />
+        </ParallaxCard>
 
-        {/* Now Playing or Last Played Banner */}
-        <NowPlayingBanner
-          nowPlaying={nowPlaying}
-          lastScrobbled={recentTracks.length > 0 ? recentTracks[0] : null}
-        />
+        {/* Now Playing or Last Played Banner with Parallax Tilt */}
+        <ParallaxCard intensity={8}>
+          <NowPlayingBanner
+            nowPlaying={nowPlaying}
+            lastScrobbled={recentTracks.length > 0 ? recentTracks[0] : null}
+          />
+        </ParallaxCard>
 
         {/* Navigation Tabs */}
         <div className="flex justify-center sm:justify-start">
