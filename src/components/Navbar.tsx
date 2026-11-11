@@ -1,5 +1,5 @@
 import React from 'react';
-import { Disc3, RefreshCw, Settings, ExternalLink, Globe } from 'lucide-react';
+import { Disc3, RefreshCw, Settings, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 interface NavbarProps {
