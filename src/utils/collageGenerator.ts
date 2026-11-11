@@ -1,14 +1,31 @@
-import { LastFmAlbum } from '../types/lastfm';
+import { LastFmAlbum, LastFmImage } from '../types/lastfm';
+
+export interface CollageItem {
+  name: string;
+  artist: {
+    name: string;
+    mbid?: string;
+    url?: string;
+  };
+  image: LastFmImage[];
+  playcount: string;
+  url?: string;
+  mbid?: string;
+  '@attr'?: {
+    rank: string;
+  };
+}
 
 export interface RenderCollageOptions {
-  albums: LastFmAlbum[];
+  items?: CollageItem[];
+  albums?: LastFmAlbum[]; // For backward compatibility
   cols: number;
   rows: number;
   gap: number;
   showTitles: boolean;
   showPlaycounts: boolean;
   showRanks: boolean;
-  style: 'classic' | 'minimal' | 'glass';
+  style?: 'classic' | 'minimal' | 'glass';
   targetWidth?: number; // defaults to 1800px
 }
 
@@ -23,21 +40,20 @@ function loadImage(url: string): Promise<HTMLImageElement> {
     img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
     img.onerror = () => {
-      // Retry without anonymous or reject
       reject(new Error(`Failed to load ${url}`));
     };
     img.src = url;
   });
 }
 
-function getBestImageUrl(album: LastFmAlbum): string {
-  if (!album.image || !album.image.length) return '';
+function getBestImageUrl(item: CollageItem): string {
+  if (!item.image || !item.image.length) return '';
   const preferred = ['mega', 'extralarge', 'large', 'medium', 'small'];
   for (const size of preferred) {
-    const found = album.image.find((img) => img.size === size && img['#text']);
+    const found = item.image.find((img) => img.size === size && img['#text']);
     if (found && found['#text']) return found['#text'];
   }
-  return album.image[album.image.length - 1]?.['#text'] || '';
+  return item.image[item.image.length - 1]?.['#text'] || '';
 }
 
 export async function renderCollageToCanvas(
@@ -45,7 +61,7 @@ export async function renderCollageToCanvas(
   options: RenderCollageOptions
 ): Promise<void> {
   const {
-    albums,
+    items = options.albums || [],
     cols,
     rows,
     gap = 8,
@@ -56,7 +72,7 @@ export async function renderCollageToCanvas(
   } = options;
 
   const totalSlots = cols * rows;
-  const selectedAlbums = albums.slice(0, totalSlots);
+  const selectedItems = items.slice(0, totalSlots);
 
   // Compute tile dimensions
   const totalGapX = gap * (cols + 1);
@@ -76,8 +92,8 @@ export async function renderCollageToCanvas(
   ctx.fillRect(0, 0, targetWidth, targetHeight);
 
   // Pre-load images in parallel
-  const imagePromises = selectedAlbums.map(async (album) => {
-    const url = getBestImageUrl(album);
+  const imagePromises = selectedItems.map(async (item) => {
+    const url = getBestImageUrl(item);
     if (!url) return null;
     try {
       return await loadImage(url);
@@ -88,14 +104,14 @@ export async function renderCollageToCanvas(
 
   const loadedImages = await Promise.all(imagePromises);
 
-  // Draw each album slot
+  // Draw each item slot
   for (let i = 0; i < totalSlots; i++) {
     const r = Math.floor(i / cols);
     const c = i % cols;
     const x = gap + c * (tileWidth + gap);
     const y = gap + r * (tileHeight + gap);
 
-    const album = selectedAlbums[i];
+    const item = selectedItems[i];
     const img = loadedImages[i];
 
     ctx.save();
@@ -138,14 +154,14 @@ export async function renderCollageToCanvas(
         ctx.stroke();
       }
 
-      if (album) {
+      if (item) {
         // Fallback text
         ctx.fillStyle = '#f3f4f6';
         ctx.font = `bold ${Math.max(16, Math.floor(tileWidth * 0.065))}px 'Plus Jakarta Sans', sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
-        const lines = wrapText(ctx, album.name, tileWidth * 0.85);
+        const lines = wrapText(ctx, item.name, tileWidth * 0.85);
         const startY = centerY - (lines.length * 20) / 2;
         lines.forEach((line, idx) => {
           ctx.fillText(line, centerX, startY + idx * 24);
@@ -153,12 +169,12 @@ export async function renderCollageToCanvas(
 
         ctx.fillStyle = '#d51007';
         ctx.font = `600 ${Math.max(13, Math.floor(tileWidth * 0.048))}px 'Plus Jakarta Sans', sans-serif`;
-        ctx.fillText(album.artist.name, centerX, centerY + (lines.length * 20) / 2 + 20);
+        ctx.fillText(item.artist.name, centerX, centerY + (lines.length * 20) / 2 + 20);
       }
     }
 
     // Overlay details
-    if (album && (showTitles || showPlaycounts || showRanks)) {
+    if (item && (showTitles || showPlaycounts || showRanks)) {
       // Bottom Gradient for readability if titles are shown
       if (showTitles || showPlaycounts) {
         const overlayHeight = Math.floor(tileHeight * 0.38);
@@ -179,12 +195,12 @@ export async function renderCollageToCanvas(
 
         let currentY = baseBottom;
 
-        if (showPlaycounts && album.playcount) {
+        if (showPlaycounts && item.playcount) {
           ctx.textAlign = 'left';
           ctx.textBaseline = 'bottom';
           ctx.fillStyle = '#ff1721';
           ctx.font = `bold ${Math.max(12, Math.floor(tileWidth * 0.042))}px 'Plus Jakarta Sans', sans-serif`;
-          ctx.fillText(`${Number(album.playcount).toLocaleString()} Scrobbles`, x + padX, currentY);
+          ctx.fillText(`${Number(item.playcount).toLocaleString()} Scrobbles`, x + padX, currentY);
           currentY -= Math.max(16, Math.floor(tileWidth * 0.05));
         }
 
@@ -194,21 +210,21 @@ export async function renderCollageToCanvas(
           // Artist
           ctx.fillStyle = '#e2e8f0';
           ctx.font = `600 ${Math.max(12, Math.floor(tileWidth * 0.044))}px 'Plus Jakarta Sans', sans-serif`;
-          const artistText = truncateText(ctx, album.artist.name, tileWidth - padX * 2);
+          const artistText = truncateText(ctx, item.artist.name, tileWidth - padX * 2);
           ctx.fillText(artistText, x + padX, currentY);
           currentY -= Math.max(16, Math.floor(tileWidth * 0.052));
 
-          // Album Name
+          // Title / Item Name
           ctx.fillStyle = '#ffffff';
           ctx.font = `800 ${Math.max(14, Math.floor(tileWidth * 0.052))}px 'Plus Jakarta Sans', sans-serif`;
-          const albumText = truncateText(ctx, album.name, tileWidth - padX * 2);
-          ctx.fillText(albumText, x + padX, currentY);
+          const titleText = truncateText(ctx, item.name, tileWidth - padX * 2);
+          ctx.fillText(titleText, x + padX, currentY);
         }
       }
 
       // Rank Badge
       if (showRanks) {
-        const rankNum = album['@attr']?.rank || String(i + 1);
+        const rankNum = item['@attr']?.rank || String(i + 1);
         const badgeSize = Math.max(26, Math.floor(tileWidth * 0.12));
         const badgeX = x + Math.max(8, Math.floor(tileWidth * 0.04));
         const badgeY = y + Math.max(8, Math.floor(tileWidth * 0.04));
@@ -263,3 +279,7 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
   lines.push(currentLine);
   return lines;
 }
+
+
+
+
