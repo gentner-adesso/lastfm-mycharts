@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+}
+
+/* Harder-contrast Neumorphism Helper Classes */
+.neu-card {
+  background: #0d0e12;
+  box-shadow: 10px 10px 24px #000000, -5px -5px 16px rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.25rem;
+}
+
+.neu-card-sm {
+  background: #111216;
+  box-shadow: 6px 6px 14px #000000, -3px -3px 10px rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.875rem;
+}
+
+.neu-inset {
+  background: #060709;
+  box-shadow: inset 5px 5px 12px #000000, inset -3px -3px 8px rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.neu-button {
+  background: #121318;
+  box-shadow: 6px 6px 14px #000000, -3px -3px 10px rgba(255, 255, 255, 0.06);
+  transition: all 0.18s ease-in-out;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.neu-button:hover {
+  background: #16181f;
+  border-color: #ff1721;
+  box-shadow: 8px 8px 18px #000000, -4px -4px 12px rgba(255, 255, 255, 0.09), 0 0 16px rgba(255, 23, 33, 0.25);
+  transform: translateY(-1px);
+}
+
+.neu-button:active,
+.neu-button-active {
+  background: #08090c !important;
+  box-shadow: inset 4px 4px 10px #000000, inset -3px -3px 8px rgba(255, 255, 255, 0.05) !important;
+  border-color: #ff1721 !important;
+  color: #ffffff !important;
+  transform: translateY(1px);
+}
+
+.neu-button-red {
+  background: linear-gradient(135deg, #ff1721, #c8000a);
+  box-shadow: 8px 8px 20px #000000, -3px -3px 10px rgba(255, 255, 255, 0.08), 0 0 25px rgba(255, 23, 33, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transition: all 0.2s ease-in-out;
+  color: #ffffff;
+}
+
+.neu-button-red:hover {
+  background: linear-gradient(135deg, #ff2c35, #e0000b);
+  box-shadow: 10px 10px 24px #000000, 0 0 35px rgba(255, 23, 33, 0.8);
+  border-color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.neu-button-red:active {
+  box-shadow: inset 4px 4px 10px #750005, inset -3px -3px 8px #ff5960 !important;
+  transform: translateY(1px);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #060709;
+}
+::-webkit-scrollbar-thumb {
+  background: #252830;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ff1721;
+}
+
+/* Pulsing Red Dot for Live Now Playing */
+@keyframes pulse-red {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 23, 33, 0.85);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.18);
+    box-shadow: 0 0 0 10px rgba(255, 23, 33, 0);
+  }
+}
+
+.animate-pulse-red {
+  animation: pulse-red 1.8s infinite ease-in-out;
+}

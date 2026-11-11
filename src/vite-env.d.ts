@@ -1,0 +1,11 @@
+/// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_LASTFM_API_KEY: string;
+  readonly VITE_LASTFM_SHARED_SECRET?: string;
+  readonly VITE_LASTFM_USER?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
